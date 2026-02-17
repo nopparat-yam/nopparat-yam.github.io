@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Interactive Snell's Law Simulator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #f4f6f9;
+    }
+
+    .container {
+      margin-top: 20px;
+    }
+
+    canvas {
+      border: 1px solid black;
+      background: white;
+      margin-top: 20px;
+    }
+
+    input {
+      margin: 5px;
+    }
+
+    button {
+      padding: 3px 8px;
+    }
+
+    .result {
+      margin-top: 15px;
+      font-size: 18px;
+    }
+
+    .warning {
+      color: red;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h2>สื่อจำลองการหักเหของแสง (Snell's Law)</h2>
+
+  <div class="container">
+    n₁:
+    <button id="n1minus">−</button>
+    <input type="number" id="n1" value="1.00" step="0.01">
+    <button id="n1plus">+</button>
+
+    n₂:
+    <button id="n2minus">−</button>
+    <input type="number" id="n2" value="1.33" step="0.01">
+    <button id="n2plus">+</button>
+    <br>
+
+    มุมตกกระทบ (θ₁):
+    <input type="range" id="angle" min="0" max="89" value="30">
+    <span id="angleValue">30</span>°
+  </div>
+
+  <canvas id="canvas" width="600" height="400"></canvas>
+
+  <div class="result" id="result"></div>
+
+  <script>
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+
+    const n1Input = document.getElementById("n1");
+    const n2Input = document.getElementById("n2");
+    const angleSlider = document.getElementById("angle");
+    const angleValue = document.getElementById("angleValue");
+    const resultDiv = document.getElementById("result");
+
+    let holdTimer;
+
+    // ===== ปุ่มกดแช่ =====
+    function holdButton(btn, callback) {
+      btn.addEventListener("mousedown", () => {
+        callback();
+        holdTimer = setInterval(callback, 100);
+      });
+      btn.addEventListener("mouseup", () => clearInterval(holdTimer));
+      btn.addEventListener("mouseleave", () => clearInterval(holdTimer));
+    }
+
+    holdButton(document.getElementById("n1plus"), () => changeN1(0.01));
+    holdButton(document.getElementById("n1minus"), () => changeN1(-0.01));
+    holdButton(document.getElementById("n2plus"), () => changeN2(0.01));
+    holdButton(document.getElementById("n2minus"), () => changeN2(-0.01));
+
+    function changeN1(d) {
+      let current = parseFloat(n1Input.value);
+
+      if (isNaN(current)) current = 0;   // default = 0
+
+      n1Input.value = Math.max(0, current + d).toFixed(2);
+      draw();
+    }
+
+    function changeN2(d) {
+      let current = parseFloat(n2Input.value);
+
+      if (isNaN(current)) current = 0;   // default = 0
+
+      n2Input.value = Math.max(0, current + d).toFixed(2);
+      draw();
+    }
+
+    function validateInput(input) {
+      let v = parseFloat(input.value);
+
+      if (input.value.trim() === "" || isNaN(v)) {
+        input.value = 0;
+      } else if (v < 0) {
+        input.value = 0;
+      }
+
+      draw();
+    }
+
+    // ===== วาด arc =====
+    function drawArc(cx, cy, r, start, end, color) {
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, start, end);
+      ctx.strokeStyle = color;
+      ctx.stroke();
+    }
+
+    // ===== วาดหลัก =====
+    function draw() {
+      const n1 = parseFloat(n1Input.value);
+      const n2 = parseFloat(n2Input.value);
+      const theta1Deg = parseFloat(angleSlider.value);
+      const theta1 = theta1Deg * Math.PI / 180;
+
+      angleValue.textContent = theta1Deg;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+      const length = 250;
+
+      // เส้นแบ่ง
+      ctx.beginPath();
+      ctx.moveTo(0, centerY);
+      ctx.lineTo(canvas.width, centerY);
+      ctx.stroke();
+
+      // เส้นตั้งฉาก
+      ctx.setLineDash([5, 5]);
+      ctx.beginPath();
+      ctx.moveTo(centerX, 0);
+      ctx.lineTo(centerX, canvas.height);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // ลำแสงตกกระทบ
+      const x1 = centerX - length * Math.sin(theta1);
+      const y1 = centerY - length * Math.cos(theta1);
+
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(centerX, centerY);
+      ctx.strokeStyle = "red";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // arc θ1
+      drawArc(centerX, centerY, 40, -Math.PI / 2 - theta1, -Math.PI / 2, "red");
+
+
+      const sinTheta2 = (n1 / n2) * Math.sin(theta1);
+
+      let resultHTML = `θ₁ = ${theta1Deg}° <br>`;
+
+      if (Math.abs(sinTheta2) <= 1) {
+        const theta2 = Math.asin(sinTheta2);
+        const theta2Deg = theta2 * 180 / Math.PI;
+
+        const x2 = centerX + length * Math.sin(theta2);
+        const y2 = centerY + length * Math.cos(theta2);
+
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.lineTo(x2, y2);
+        ctx.strokeStyle = "blue";
+        ctx.stroke();
+
+        // arc θ2
+        drawArc(centerX, centerY, 40, Math.PI / 2 - theta2, Math.PI / 2, "blue");
+
+        resultHTML += `θ₂ = ${theta2Deg.toFixed(2)}° <br>`;
+      }
+      else {
+        const x2 = centerX + length * Math.sin(theta1);
+        const y2 = centerY - length * Math.cos(theta1);
+
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.lineTo(x2, y2);
+        ctx.strokeStyle = "green";
+        ctx.stroke();
+
+        resultHTML += `<div class="warning">เกิด Total Internal Reflection</div>`;
+      }
+
+      resultDiv.innerHTML = resultHTML;
+    }
+
+    angleSlider.oninput = draw;
+    n1Input.addEventListener("blur", () => validateInput(n1Input));
+    n2Input.addEventListener("blur", () => validateInput(n2Input));
+
+    draw();
+  </script>
+
+</body>
+
+</html>
