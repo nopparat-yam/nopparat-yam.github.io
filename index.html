@@ -60,6 +60,8 @@
     มุมตกกระทบ (θ₁):
     <input type="range" id="angle" min="0" max="89" value="30">
     <span id="angleValue">30</span>°
+    <br>
+    <label><input type="checkbox" id="showAngles" checked> แสดงมุมในรูป</label>
   </div>
 
   <canvas id="canvas" width="600" height="400"></canvas>
@@ -75,6 +77,7 @@
     const angleSlider = document.getElementById("angle");
     const angleValue = document.getElementById("angleValue");
     const resultDiv = document.getElementById("result");
+    const showAnglesCheckbox = document.getElementById("showAngles");
 
     let holdTimer;
 
@@ -131,6 +134,21 @@
       ctx.stroke();
     }
 
+    // ===== วาดป้ายพร้อมพื้นหลัง =====
+    function drawLabel(x, y, text, color) {
+      const padding = 4;
+      ctx.font = "16px Arial";
+      const metrics = ctx.measureText(text);
+      const w = metrics.width + padding * 2;
+      const h = 16 + padding * 2;
+      ctx.fillStyle = "white";
+      ctx.fillRect(x - w / 2, y - h / 2, w, h);
+      ctx.fillStyle = color;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(text, x, y);
+    }
+
     // ===== วาดหลัก =====
     function draw() {
       const n1 = parseFloat(n1Input.value);
@@ -146,19 +164,24 @@
       const centerY = canvas.height / 2;
       const length = 250;
 
-      // เส้นแบ่ง
+      // เส้นแบ่ง (แนวนอน) – คงสีดำเสมอ
+      ctx.strokeStyle = "black";
+      ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(0, centerY);
       ctx.lineTo(canvas.width, centerY);
       ctx.stroke();
 
-      // เส้นตั้งฉาก
+      // เส้นตั้งฉาก (แนวตั้ง แบบปะ)
       ctx.setLineDash([5, 5]);
       ctx.beginPath();
       ctx.moveTo(centerX, 0);
       ctx.lineTo(centerX, canvas.height);
       ctx.stroke();
       ctx.setLineDash([]);
+
+      // (แก้ไข) ไม่แสดงป้ายองศาบนแกนอีกต่อไป
+      // Labels for axes removed as requested
 
       // ลำแสงตกกระทบ
       const x1 = centerX - length * Math.sin(theta1);
@@ -171,17 +194,30 @@
       ctx.lineWidth = 2;
       ctx.stroke();
 
-      // arc θ1
-      drawArc(centerX, centerY, 40, -Math.PI / 2 - theta1, -Math.PI / 2, "red");
+      // arc และป้ายเฉพาะเมื่อเลือกให้แสดงมุม
+      const xOffset = -20; // เลื่อนป้ายไปทางซ้ายเพิ่มเติม
+      const mid1 = -Math.PI / 2 - theta1 / 2;
+      let labelRadius = 60;
+      if (showAnglesCheckbox.checked) {
+        // arc θ1
+        drawArc(centerX, centerY, 40, -Math.PI / 2 - theta1, -Math.PI / 2, "red");
+        const lx1 = centerX + labelRadius * Math.cos(mid1) + xOffset;
+        const ly1 = centerY + labelRadius * Math.sin(mid1);
+        ctx.fillStyle = "red";
+        ctx.font = "16px Arial";
+        drawLabel(lx1, ly1, `${theta1Deg.toFixed(1)}°`, "red");
+      }
 
 
       const sinTheta2 = (n1 / n2) * Math.sin(theta1);
 
-      let resultHTML = `θ₁ = ${theta1Deg}° <br>`;
+      // เริ่มต้นข้อความผลลัพธ์
+      let resultHTML = `มุมตกกระทบคือ ${theta1Deg}°<br>`;
 
       if (Math.abs(sinTheta2) <= 1) {
         const theta2 = Math.asin(sinTheta2);
         const theta2Deg = theta2 * 180 / Math.PI;
+        resultHTML += `มุมหักเหคือ ${theta2Deg.toFixed(2)}°<br>`;
 
         const x2 = centerX + length * Math.sin(theta2);
         const y2 = centerY + length * Math.cos(theta2);
@@ -192,10 +228,18 @@
         ctx.strokeStyle = "blue";
         ctx.stroke();
 
-        // arc θ2
-        drawArc(centerX, centerY, 40, Math.PI / 2 - theta2, Math.PI / 2, "blue");
+        if (showAnglesCheckbox.checked) {
+          // arc θ2
+          drawArc(centerX, centerY, 40, Math.PI / 2 - theta2, Math.PI / 2, "blue");
+          // ป้ายค่าองศาของ θ2 เคลื่อนตามมุม
+          const mid2 = Math.PI / 2 - theta2 / 2;
+          const lx2 = centerX + labelRadius * Math.cos(mid2) + xOffset;
+          const ly2 = centerY + labelRadius * Math.sin(mid2);
+          ctx.fillStyle = "blue";
+          ctx.font = "16px Arial";
+          drawLabel(lx2, ly2, `${theta2Deg.toFixed(1)}°`, "blue");
+        }
 
-        resultHTML += `θ₂ = ${theta2Deg.toFixed(2)}° <br>`;
       }
       else {
         const x2 = centerX + length * Math.sin(theta1);
@@ -206,14 +250,28 @@
         ctx.lineTo(x2, y2);
         ctx.strokeStyle = "green";
         ctx.stroke();
+        // reflection angle will be appended after warning
+
+        if (showAnglesCheckbox.checked) {
+          // arc for reflection angle (equal to θ1)
+          drawArc(centerX, centerY, 40, -Math.PI / 2, -Math.PI / 2 + theta1, "green");
+          const midR = -Math.PI / 2 + theta1 / 2;
+          const lxR = centerX + labelRadius * Math.cos(midR) + xOffset;
+          const lyR = centerY + labelRadius * Math.sin(midR);
+          ctx.fillStyle = "green";
+          ctx.font = "16px Arial";
+          drawLabel(lxR, lyR, `${theta1Deg.toFixed(1)}°`, "green");
+        }
 
         resultHTML += `<div class="warning">เกิด Total Internal Reflection</div>`;
+        resultHTML += `มุมสะท้อนคือ ${theta1Deg}°<br>`;
       }
 
       resultDiv.innerHTML = resultHTML;
     }
 
     angleSlider.oninput = draw;
+    showAnglesCheckbox.addEventListener('change', draw);
     n1Input.addEventListener("blur", () => validateInput(n1Input));
     n2Input.addEventListener("blur", () => validateInput(n2Input));
 
