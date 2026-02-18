@@ -94,9 +94,14 @@
     }
 
     .custom-controls button {
-      padding: 6px 10px;
+      padding: 0 10px;
+      height: 40px;
       font-size: 15px;
       border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
     }
 
     .angle-block {
@@ -107,7 +112,7 @@
       min-width: 360px;
       text-align: center;
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-      margin: 20px auto 8px;
+      margin: 8px auto 0;
     }
 
     .controls-center {
@@ -124,9 +129,10 @@
 
     .angle-block label {
       font-weight: bold;
-      display: block;
-      margin-bottom: 6px;
+      display: inline;
+      margin-bottom: 12px;
       text-align: center;
+      display: block;
     }
 
     .angle-controls {
@@ -134,6 +140,7 @@
       align-items: center;
       gap: 8px;
       justify-content: center;
+      margin-top: 8px;
     }
 
     .angle-checkbox {
@@ -361,7 +368,8 @@
 
   <!-- moved angle controls here so the slider sits below the result text -->
   <div class="angle-block" id="angleBlockBelow">
-    <label for="angle">มุมตกกระทบ (θ₁): <div style="min-width:56px"> <span id="angleValue">30</span>°</div></label>
+    <label for="angle">มุมตกกระทบ (θ₁): <span style="min-width:56px; display: inline-block;"> <span
+          id="angleValue">30</span>°</span></label>
     <div class="angle-controls">
       <input type="range" id="angle" min="0" max="89" value="30">
 
@@ -551,12 +559,12 @@
         const sinTheta2 = (n1 / n2) * Math.sin(theta1);
 
         // เริ่มต้นข้อความผลลัพธ์
-        let resultHTML = `มุมตกกระทบ = ${theta1Deg}°<br>`;
+        let resultHTML = '';
 
         if (Math.abs(sinTheta2) <= 1) {
           const theta2 = Math.asin(sinTheta2);
           const theta2Deg = theta2 * 180 / Math.PI;
-          resultHTML += `มุมหักเห = ${theta2Deg.toFixed(2)}°<br>`;
+          resultHTML += `<br>มุมหักเห = ${theta2Deg.toFixed(2)}°<br>`;
 
           let x2 = centerX + length * Math.sin(theta2);
           let y2 = centerY + length * Math.cos(theta2);
@@ -605,7 +613,7 @@
           }
 
           resultHTML += `<div class="warning">เกิดการสะท้อนกลับหมด</div>`;
-          resultHTML += `มุมสะท้อนคือ ${theta1Deg}°<br>`;
+          resultHTML += `มุมสะท้อน = ${theta1Deg}°<br>`;
         }
 
         resultDiv.innerHTML = resultHTML;
