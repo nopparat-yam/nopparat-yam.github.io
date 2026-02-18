@@ -19,6 +19,8 @@
       border: 1px solid black;
       background: white;
       margin-top: 20px;
+      max-width: 100%;
+      height: auto;
     }
 
     input {
@@ -111,6 +113,69 @@
     .angle-controls input[type="range"] {
       width: 60%;
       max-width: 420px;
+    }
+
+    /* Mobile / tablet adjustments */
+    @media (max-width: 900px) {
+      body {
+        font-size: 16px;
+      }
+
+      .indices {
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .index-block {
+        min-width: auto;
+        width: 92%;
+        margin: 0 auto;
+      }
+
+      .angle-block {
+        width: 92%;
+        box-sizing: border-box;
+      }
+
+      select,
+      .custom-controls input[type="number"] {
+        font-size: 16px;
+      }
+
+      .custom-controls input[type="number"] {
+        width: 88px;
+      }
+
+      .custom-controls button {
+        padding: 6px 10px;
+        font-size: 16px;
+      }
+
+      button {
+        padding: 6px 10px;
+      }
+
+      .angle-controls input[type="range"] {
+        width: 70%;
+      }
+    }
+
+    @media (max-width: 420px) {
+      body {
+        font-size: 17px;
+      }
+
+      .custom-controls input[type="number"] {
+        width: 96px;
+      }
+
+      .angle-controls input[type="range"] {
+        width: 68%;
+      }
+
+      .value-display {
+        font-size: 15px;
+      }
     }
 
     button {
@@ -301,9 +366,20 @@
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      const centerX = canvas.width / 2;
-      const centerY = canvas.height / 2;
-      const length = 250;
+      // use CSS pixel sizes (clientWidth/clientHeight) so drawing matches transform
+      const displayWidth = canvas.clientWidth;
+      const displayHeight = canvas.clientHeight;
+      const centerX = displayWidth / 2;
+      const centerY = displayHeight / 2;
+      // ray length proportional to canvas size
+      const length = Math.max(120, Math.min(displayWidth, displayHeight) * 0.45);
+
+      function clampPoint(x, y) {
+        return {
+          x: Math.max(0, Math.min(displayWidth, x)),
+          y: Math.max(0, Math.min(displayHeight, y))
+        };
+      }
 
       // เส้นแบ่ง (แนวนอน) – คงสีดำเสมอ
       ctx.strokeStyle = "black";
@@ -360,8 +436,9 @@
         const theta2Deg = theta2 * 180 / Math.PI;
         resultHTML += `มุมหักเหคือ ${theta2Deg.toFixed(2)}°<br>`;
 
-        const x2 = centerX + length * Math.sin(theta2);
-        const y2 = centerY + length * Math.cos(theta2);
+        let x2 = centerX + length * Math.sin(theta2);
+        let y2 = centerY + length * Math.cos(theta2);
+        ({ x: x2, y: y2 } = clampPoint(x2, y2));
 
         ctx.beginPath();
         ctx.moveTo(centerX, centerY);
@@ -383,8 +460,9 @@
 
       }
       else {
-        const x2 = centerX + length * Math.sin(theta1);
-        const y2 = centerY - length * Math.cos(theta1);
+        let x2 = centerX + length * Math.sin(theta1);
+        let y2 = centerY - length * Math.cos(theta1);
+        ({ x: x2, y: y2 } = clampPoint(x2, y2));
 
         ctx.beginPath();
         ctx.moveTo(centerX, centerY);
@@ -450,7 +528,26 @@
     // ensure displayed numeric values match initial selections
     updateDisplayedValues();
 
-    draw();
+    // Responsive canvas sizing: set proper pixel size for device DPR and redraw on resize
+    function resizeCanvas() {
+      const containerWidth = Math.min(document.querySelector('.container').clientWidth, 900);
+      const aspect = 600 / 400; // original aspect ratio
+      const displayWidth = Math.max(280, containerWidth * 0.98);
+      const displayHeight = Math.round(displayWidth / aspect);
+      const dpr = window.devicePixelRatio || 1;
+      canvas.style.width = displayWidth + 'px';
+      canvas.style.height = displayHeight + 'px';
+      canvas.width = Math.floor(displayWidth * dpr);
+      canvas.height = Math.floor(displayHeight * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      draw();
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    window.addEventListener('orientationchange', resizeCanvas);
+
+    // init canvas size then draw
+    resizeCanvas();
   </script>
 
 </body>
