@@ -220,12 +220,14 @@
         font-size: 16px;
       }
 
-      /* บนจอเล็กให้ปุ่ม - ช่องกรอก และปุ่ม + ขึ้นบรรทัดใหม่ ไม่ไปซ้อนด้านหลัง */
+      /* บนจอเล็ก: ให้ปุ่ม - ช่องกรอก และปุ่ม + ยังอยู่บรรทัดเดียวกัน แต่ไม่ไปซ้อนด้านหลัง */
       .value-display .custom-controls:not(.hidden) {
-        display: block;
-        margin-top: 8px;
-        z-index: 2;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-left: 6px;
         position: relative;
+        z-index: 2;
       }
 
       .angle-block {
@@ -313,7 +315,7 @@
     }
 
     .result {
-      min-height: 60px;
+      min-height: 48px;
       margin-top: 10px;
     }
 
