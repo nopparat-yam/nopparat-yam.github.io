@@ -305,20 +305,23 @@
     }
 
     .result {
-      margin-top: 15px;
-      font-size: 18px;
+      min-height: 60px;
+      margin-top: 10px;
     }
 
     .warning {
       color: red;
       font-weight: bold;
+      display: block;
+      margin: 0.5em 0;
+      min-height: 1em;
     }
   </style>
 </head>
 
 <body>
 
-  <h2>สื่อจำลองการหักเหของแสง <br>(Snell's Law)</h2>
+  <h3>สื่อจำลองการหักเหของแสง (Snell's Law)</h3>
 
   <div class="container">
     <div class="indices">
@@ -564,7 +567,8 @@
         if (Math.abs(sinTheta2) <= 1) {
           const theta2 = Math.asin(sinTheta2);
           const theta2Deg = theta2 * 180 / Math.PI;
-          resultHTML += `<br>มุมหักเห = ${theta2Deg.toFixed(2)}°<br>`;
+          resultHTML += `<div class="warning"> </div>`;
+          resultHTML += `มุมหักเห = ${theta2Deg.toFixed(2)}°<br>`;
 
           let x2 = centerX + length * Math.sin(theta2);
           let y2 = centerY + length * Math.cos(theta2);
