@@ -275,7 +275,7 @@
 
     @media (max-width: 420px) {
       body {
-        font-size: 16px;
+        font-size: 15px;
       }
 
       /* ให้กล่องตัวกลางที่ 1 และ 2 ยังอยู่บรรทัดเดียวกันบนจอเล็ก */
@@ -310,12 +310,22 @@
         display: flex;
         width: 100%;
         justify-content: space-between;
-        gap: 6px;
+        gap: 4px;
         margin-left: 0;
       }
 
       .custom-controls input[type="number"] {
-        width: 80px;
+        width: 64px;
+        font-size: 14px;
+        height: 38px;
+        padding: 4px 6px;
+      }
+
+      .custom-controls button {
+        min-width: 40px;
+        min-height: 38px;
+        padding: 4px 6px;
+        font-size: 14px;
       }
 
       .angle-controls input[type="range"] {
