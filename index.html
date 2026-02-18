@@ -25,6 +25,94 @@
       margin: 5px;
     }
 
+    .custom-controls {
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .indices {
+      display: flex;
+      gap: 18px;
+      justify-content: center;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    .index-block {
+      background: #ffffffaa;
+      padding: 8px 12px;
+      border-radius: 6px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      min-width: 220px;
+      text-align: left;
+    }
+
+    .index-block label {
+      display: inline-block;
+      margin-bottom: 4px;
+      font-weight: bold;
+    }
+
+    .value-display {
+      margin-top: 8px;
+      font-size: 13px;
+      color: #333;
+      display: block;
+    }
+
+    .value-display .custom-controls:not(.hidden) {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: 6px;
+    }
+
+    .custom-controls input[type="number"] {
+      width: 72px;
+      box-sizing: border-box;
+      padding: 4px 6px;
+      font-size: 13px;
+    }
+
+    .custom-controls button {
+      padding: 2px 6px;
+      font-size: 14px;
+    }
+
+    .angle-block {
+      background: #ffffffaa;
+      padding: 10px 14px;
+      border-radius: 6px;
+      display: inline-block;
+      min-width: 360px;
+      text-align: center;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+      margin: 8px auto;
+    }
+
+    .angle-block label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 6px;
+      text-align: center;
+    }
+
+    .angle-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .angle-controls input[type="range"] {
+      width: 60%;
+      max-width: 420px;
+    }
+
     button {
       padding: 3px 8px;
     }
@@ -46,22 +134,56 @@
   <h2>สื่อจำลองการหักเหของแสง (Snell's Law)</h2>
 
   <div class="container">
-    n₁:
-    <button id="n1minus">−</button>
-    <input type="number" id="n1" value="1.00" step="0.01">
-    <button id="n1plus">+</button>
+    <div class="indices">
+      <div class="index-block">
+        <label for="n1select">ตัวกลางที่ 1 :</label><br>
+        <select id="n1select">
+          <option value="1.0000">สุญญากาศ</option>
+          <option value="1.0003" selected>อากาศ</option>
+          <option value="1.33">น้ำ</option>
+          <option value="1.50">แก้วทั่วไป</option>
+          <option value="2.42">เพชร</option>
+          <option value="custom">กำหนดเอง</option>
+        </select>
+        <div class="value-display">ค่าดัชนีหักเหของแสง(n₁) : <span id="n1value">1.0000</span>
+          <span id="n1custom" class="custom-controls hidden">
+            <button id="n1minus">−</button>
+            <input type="number" id="n1" value="1.00" step="0.01">
+            <button id="n1plus">+</button>
+          </span>
+        </div>
+      </div>
 
-    n₂:
-    <button id="n2minus">−</button>
-    <input type="number" id="n2" value="1.33" step="0.01">
-    <button id="n2plus">+</button>
-    <br>
+      <div class="index-block">
+        <label for="n2select">ตัวกลางที่ 2 :</label><br>
+        <select id="n2select">
+          <option value="1.0000">สุญญากาศ</option>
+          <option value="1.0003">อากาศ</option>
+          <option value="1.33" selected>น้ำ</option>
+          <option value="1.50">แก้วทั่วไป</option>
+          <option value="2.42">เพชร</option>
+          <option value="custom">กำหนดเอง</option>
+        </select>
+        <div class="value-display">ค่าดัชนีหักเหของแสง(n₂) : <span id="n2value">1.3300</span>
+          <span id="n2custom" class="custom-controls hidden">
+            <button id="n2minus">−</button>
+            <input type="number" id="n2" value="1.33" step="0.01">
+            <button id="n2plus">+</button>
+          </span>
+        </div>
+      </div>
+    </div>
 
-    มุมตกกระทบ (θ₁):
-    <input type="range" id="angle" min="0" max="89" value="30">
-    <span id="angleValue">30</span>°
-    <br>
-    <label><input type="checkbox" id="showAngles" checked> แสดงมุมในรูป</label>
+    <div class="angle-block">
+      <label for="angle">มุมตกกระทบ (θ₁):</label>
+      <div class="angle-controls">
+        <input type="range" id="angle" min="0" max="89" value="30">
+        <div style="min-width:56px"> <span id="angleValue">30</span>°</div>
+      </div>
+      <div style="margin-top:8px">
+        <label><input type="checkbox" id="showAngles" checked> แสดงมุมในรูป</label>
+      </div>
+    </div>
   </div>
 
   <canvas id="canvas" width="600" height="400"></canvas>
@@ -72,8 +194,14 @@
     const canvas = document.getElementById("canvas");
     const ctx = canvas.getContext("2d");
 
+    const n1Select = document.getElementById("n1select");
+    const n2Select = document.getElementById("n2select");
     const n1Input = document.getElementById("n1");
     const n2Input = document.getElementById("n2");
+    const n1Custom = document.getElementById("n1custom");
+    const n2Custom = document.getElementById("n2custom");
+    const n1ValueSpan = document.getElementById("n1value");
+    const n2ValueSpan = document.getElementById("n2value");
     const angleSlider = document.getElementById("angle");
     const angleValue = document.getElementById("angleValue");
     const resultDiv = document.getElementById("result");
@@ -102,6 +230,7 @@
       if (isNaN(current)) current = 0;   // default = 0
 
       n1Input.value = Math.max(0, current + d).toFixed(2);
+      updateDisplayedValues();
       draw();
     }
 
@@ -111,6 +240,7 @@
       if (isNaN(current)) current = 0;   // default = 0
 
       n2Input.value = Math.max(0, current + d).toFixed(2);
+      updateDisplayedValues();
       draw();
     }
 
@@ -150,9 +280,20 @@
     }
 
     // ===== วาดหลัก =====
+    function getNValue(selectElem, inputElem) {
+      if (!selectElem) return parseFloat(inputElem.value) || 0;
+      if (selectElem.value === 'custom') return parseFloat(inputElem.value) || 0;
+      return parseFloat(selectElem.value) || 0;
+    }
+
+    function updateDisplayedValues() {
+      if (n1ValueSpan) n1ValueSpan.textContent = (getNValue(n1Select, n1Input) || 0).toFixed(4);
+      if (n2ValueSpan) n2ValueSpan.textContent = (getNValue(n2Select, n2Input) || 0).toFixed(4);
+    }
+
     function draw() {
-      const n1 = parseFloat(n1Input.value);
-      const n2 = parseFloat(n2Input.value);
+      const n1 = getNValue(n1Select, n1Input);
+      const n2 = getNValue(n2Select, n2Input);
       const theta1Deg = parseFloat(angleSlider.value);
       const theta1 = theta1Deg * Math.PI / 180;
 
@@ -274,6 +415,40 @@
     showAnglesCheckbox.addEventListener('change', draw);
     n1Input.addEventListener("blur", () => validateInput(n1Input));
     n2Input.addEventListener("blur", () => validateInput(n2Input));
+
+    function updateCustomVisibility(selectElem, customElem, inputElem, valueElem) {
+      // keep the "ใช้ค่า:" label always visible; toggle the static span vs inline controls
+      if (selectElem.value === 'custom') {
+        customElem.classList.remove('hidden');
+        if (valueElem) valueElem.classList.add('hidden');
+        inputElem.disabled = false;
+      } else {
+        customElem.classList.add('hidden');
+        if (valueElem) valueElem.classList.remove('hidden');
+        inputElem.disabled = true;
+        // sync numeric input with selected preset
+        inputElem.value = parseFloat(selectElem.value).toFixed(2);
+      }
+      updateDisplayedValues();
+      draw();
+    }
+
+    n1Select.addEventListener('change', () => updateCustomVisibility(n1Select, n1Custom, n1Input, n1ValueSpan));
+    n2Select.addEventListener('change', () => updateCustomVisibility(n2Select, n2Custom, n2Input, n2ValueSpan));
+
+    // Ensure displayed value updates immediately when selection changes
+    n1Select.addEventListener('change', () => updateDisplayedValues());
+    n2Select.addEventListener('change', () => updateDisplayedValues());
+
+    n1Input.addEventListener('input', () => { updateDisplayedValues(); draw(); });
+    n2Input.addEventListener('input', () => { updateDisplayedValues(); draw(); });
+
+    // initialize visibility based on selected options
+    updateCustomVisibility(n1Select, n1Custom, n1Input, n1ValueSpan);
+    updateCustomVisibility(n2Select, n2Custom, n2Input, n2ValueSpan);
+
+    // ensure displayed numeric values match initial selections
+    updateDisplayedValues();
 
     draw();
   </script>
