@@ -275,21 +275,21 @@
 
     @media (max-width: 420px) {
       body {
-        font-size: 17px;
+        font-size: 16px;
       }
 
+      /* ให้กล่องตัวกลางที่ 1 และ 2 ยังอยู่บรรทัดเดียวกันบนจอเล็ก */
       .indices {
         display: flex;
-        gap: 10px;
+        flex-direction: row;
+        gap: 8px;
         width: 100%;
       }
 
       .index-block {
-        flex: 1;
+        flex: 1 1 0;
         min-width: 0;
         background: #fff;
-        flex: 1;
-        min-width: 0;
         padding: 12px;
         font-size: 14px;
         border-radius: 10px;
@@ -297,16 +297,29 @@
         box-sizing: border-box;
       }
 
+      /* ปรับ layout ข้อความ + ปุ่มกำหนดเองให้ดูปกติบนจอแคบ */
+      .value-display {
+        font-size: 15px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+      }
+
+      .value-display .custom-controls:not(.hidden) {
+        display: flex;
+        width: 100%;
+        justify-content: space-between;
+        gap: 6px;
+        margin-left: 0;
+      }
+
       .custom-controls input[type="number"] {
-        width: 96px;
+        width: 80px;
       }
 
       .angle-controls input[type="range"] {
         width: 68%;
-      }
-
-      .value-display {
-        font-size: 15px;
       }
     }
 
