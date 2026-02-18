@@ -255,8 +255,19 @@
       }
 
       .indices {
-        flex-direction: row;
-        gap: 10px;
+        display: flex;
+        gap: 16px;
+        width: 100%;
+      }
+
+      .index-block {
+        flex: 1;
+        min-width: 0;
+        background: #fff;
+        padding: 16px;
+        border-radius: 10px;
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.06);
+        box-sizing: border-box;
       }
 
       .custom-controls input[type="number"] {
