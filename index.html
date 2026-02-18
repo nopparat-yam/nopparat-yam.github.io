@@ -103,8 +103,20 @@
       min-width: 360px;
       text-align: center;
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-      margin: 8px auto;
+      margin: 20px auto 8px;
     }
+
+    .controls-center {
+      background: #ffffffaa;
+      padding: 10px 14px;
+      border-radius: 6px;
+      width: 100%;
+      margin: 12px 0;
+      text-align: center;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+      box-sizing: border-box;
+    }
+
 
     .angle-block label {
       font-weight: bold;
@@ -120,9 +132,43 @@
       justify-content: center;
     }
 
+    .angle-checkbox {
+      margin-bottom: 12px;
+    }
+
     .angle-controls input[type="range"] {
       width: 60%;
-      max-width: 420px;
+      max-width: 720px;
+      height: 12px;
+    }
+
+    /* larger range thumb for better touch targets */
+    input[type=range]::-webkit-slider-runnable-track {
+      height: 10px;
+      background: #ddd;
+      border-radius: 6px;
+    }
+
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 26px;
+      height: 26px;
+      background: #0b66c2;
+      border-radius: 50%;
+      margin-top: -7px;
+    }
+
+    input[type=range]::-moz-range-track {
+      height: 10px;
+      background: #ddd;
+      border-radius: 6px;
+    }
+
+    input[type=range]::-moz-range-thumb {
+      width: 26px;
+      height: 26px;
+      background: #0b66c2;
+      border-radius: 50%;
     }
 
     /* Mobile / tablet adjustments */
@@ -282,21 +328,24 @@
       </div>
     </div>
 
-    <div class="angle-block">
-      <label for="angle">มุมตกกระทบ (θ₁):</label>
-      <div class="angle-controls">
-        <input type="range" id="angle" min="0" max="89" value="30">
-        <div style="min-width:56px"> <span id="angleValue">30</span>°</div>
-      </div>
-      <div style="margin-top:8px">
-        <label><input type="checkbox" id="showAngles" checked> แสดงมุมในรูป</label>
-      </div>
+    <!-- place a centered controls box below the index blocks -->
+    <div class="controls-center">
+      <label><input type="checkbox" id="showAngles" checked> แสดงมุมในรูป</label>
     </div>
   </div>
 
   <canvas id="canvas" width="600" height="400"></canvas>
 
   <div class="result" id="result"></div>
+
+  <!-- moved angle controls here so the slider sits below the result text -->
+  <div class="angle-block" id="angleBlockBelow">
+    <label for="angle">มุมตกกระทบ (θ₁): <div style="min-width:56px"> <span id="angleValue">30</span>°</div></label>
+    <div class="angle-controls">
+      <input type="range" id="angle" min="0" max="89" value="30">
+
+    </div>
+  </div>
 
   <script>
     const canvas = document.getElementById("canvas");
@@ -314,6 +363,7 @@
     const angleValue = document.getElementById("angleValue");
     const resultDiv = document.getElementById("result");
     const showAnglesCheckbox = document.getElementById("showAngles");
+    const controlsCenter = document.querySelector('.controls-center');
 
     let holdTimer;
 
@@ -472,12 +522,12 @@
       const sinTheta2 = (n1 / n2) * Math.sin(theta1);
 
       // เริ่มต้นข้อความผลลัพธ์
-      let resultHTML = `มุมตกกระทบคือ ${theta1Deg}°<br>`;
+      let resultHTML = `มุมตกกระทบ = ${theta1Deg}°<br>`;
 
       if (Math.abs(sinTheta2) <= 1) {
         const theta2 = Math.asin(sinTheta2);
         const theta2Deg = theta2 * 180 / Math.PI;
-        resultHTML += `มุมหักเหคือ ${theta2Deg.toFixed(2)}°<br>`;
+        resultHTML += `มุมหักเห = ${theta2Deg.toFixed(2)}°<br>`;
 
         let x2 = centerX + length * Math.sin(theta2);
         let y2 = centerY + length * Math.cos(theta2);
@@ -583,6 +633,79 @@
       canvas.width = Math.floor(displayWidth * dpr);
       canvas.height = Math.floor(displayHeight * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      // set controls-center to match canvas display width so the top box lines up
+      if (controlsCenter) {
+        if (window.innerWidth >= 900) {
+          // compute a single target width so controls-center and indices match exactly
+          const gapValue = parseFloat(getComputedStyle(document.querySelector('.indices')).gap) || 18;
+          const canvasRendered = Math.round(canvas.getBoundingClientRect().width) || displayWidth;
+          let targetTotal = canvasRendered; // use actual canvas rendered width
+          // ensure each block respects its minimum width
+          const minPerBlock = 260;
+          const minTotal = minPerBlock * 2 + gapValue;
+          if (minTotal > targetTotal) targetTotal = minTotal;
+          const perBlock = (targetTotal - gapValue) / 2;
+
+          controlsCenter.style.width = Math.round(targetTotal) + 'px';
+          controlsCenter.style.margin = '12px auto';
+          controlsCenter.style.boxSizing = 'border-box';
+
+          // ensure indices uses same target total so both align
+          const indices = document.querySelector('.indices');
+          if (indices) indices.style.width = Math.round(targetTotal) + 'px';
+        } else {
+          controlsCenter.style.width = '';
+          controlsCenter.style.margin = '';
+          controlsCenter.style.boxSizing = '';
+        }
+      }
+
+      // Make the two index blocks together match the controls-center width (respecting gap)
+      const indices = document.querySelector('.indices');
+      const blocks = document.querySelectorAll('.index-block');
+      if (indices && blocks.length >= 2) {
+        // on narrow screens let CSS handle full-width stacking
+        if (window.innerWidth >= 900) {
+          // use the canvas's actual rendered width so elements align exactly
+          const canvasRendered = Math.round(canvas.getBoundingClientRect().width) || parseFloat(canvas.style.width) || indices.clientWidth;
+          indices.style.width = canvasRendered + 'px';
+          indices.style.margin = '0 auto';
+          const gapValue = parseFloat(getComputedStyle(indices).gap) || 18;
+          const totalW = canvasRendered;
+          const perBlock = Math.max(260, (totalW - gapValue) / 2);
+          blocks.forEach(b => {
+            b.style.width = Math.round(perBlock) + 'px';
+            b.style.boxSizing = 'border-box';
+          });
+        } else {
+          // remove inline widths for mobile so media queries take effect
+          indices.style.width = '';
+          blocks.forEach(b => {
+            b.style.width = '';
+            b.style.boxSizing = '';
+          });
+        }
+      }
+
+      // set slider width proportionally to canvas (not full width) so it looks balanced
+      if (angleSlider) {
+        const sliderWidth = Math.round(displayWidth * 0.72); // 72% of canvas width
+        angleSlider.style.width = sliderWidth + 'px';
+      }
+
+      const angleBlock = document.getElementById("angleBlockBelow");
+      if (angleBlock && window.innerWidth >= 900) {
+        const canvasRendered = Math.round(canvas.getBoundingClientRect().width);
+        angleBlock.style.width = canvasRendered + "px";
+        angleBlock.style.margin = "20px auto 8px";
+        angleBlock.style.boxSizing = "border-box";
+      } else if (angleBlock) {
+        // mobile ใช้ค่า default จาก CSS
+        angleBlock.style.width = "";
+        angleBlock.style.margin = "";
+        angleBlock.style.boxSizing = "";
+      }
+
       draw();
     }
 
