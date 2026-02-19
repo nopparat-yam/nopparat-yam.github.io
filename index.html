@@ -506,7 +506,7 @@
         const metrics = ctx.measureText(text);
         const w = metrics.width + padding * 2;
         const h = 16 + padding * 2;
-        ctx.fillStyle = "white";
+        ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
         ctx.fillRect(x - w / 2, y - h / 2, w, h);
         ctx.fillStyle = color;
         ctx.textAlign = "center";
@@ -585,7 +585,9 @@
         ctx.stroke();
 
         // ข้อความชื่อสื่อกลางทั้งสองด้านซ้ายของรูป
-        ctx.font = "18px Arial";
+        // ให้ขนาดเล็กลงเมื่อดูบนหน้าจอแคบ (เช่น มือถือ)
+        const labelFontSize = displayWidth < 500 ? 14 : 18;
+        ctx.font = `${labelFontSize}px Arial`;
         ctx.fillStyle = "black";
         ctx.textAlign = "left";
         ctx.textBaseline = "top";
@@ -623,15 +625,15 @@
         const xOffset = -20; // เลื่อนป้ายไปทางซ้ายเพิ่มเติม
         const mid1 = -Math.PI / 2 - theta1 / 2;
         let labelRadius = 60;
-        if (showAnglesCheckbox.checked) {
-          // arc θ1
-          drawArc(centerX, centerY, 40, -Math.PI / 2 - theta1, -Math.PI / 2, "red");
-          const lx1 = centerX + labelRadius * Math.cos(mid1) + xOffset;
-          const ly1 = centerY + labelRadius * Math.sin(mid1);
-          ctx.fillStyle = "red";
-          ctx.font = "16px Arial";
-          drawLabel(lx1, ly1, `${theta1Deg.toFixed(1)}°`, "red");
-        }
+          if (showAnglesCheckbox.checked) {
+            // arc θ1
+            drawArc(centerX, centerY, 40, -Math.PI / 2 - theta1, -Math.PI / 2, "red");
+            const lx1 = centerX + labelRadius * Math.cos(mid1) + xOffset;
+            const ly1 = centerY + labelRadius * Math.sin(mid1);
+            ctx.fillStyle = "red";
+            ctx.font = "16px Arial";
+            drawLabel(lx1, ly1, `${theta1Deg.toFixed(2)}°`, "red");
+          }
 
 
         const sinTheta2 = (n1 / n2) * Math.sin(theta1);
@@ -669,7 +671,7 @@
             const ly2 = centerY + labelRadius * Math.sin(mid2);
             ctx.fillStyle = "blue";
             ctx.font = "16px Arial";
-            drawLabel(lx2, ly2, `${theta2Deg.toFixed(1)}°`, "blue");
+            drawLabel(lx2, ly2, `${theta2Deg.toFixed(2)}°`, "blue");
           }
 
         }
@@ -693,7 +695,7 @@
             const lyR = centerY + labelRadius * Math.sin(midR);
             ctx.fillStyle = "green";
             ctx.font = "16px Arial";
-            drawLabel(lxR, lyR, `${theta1Deg.toFixed(1)}°`, "green");
+            drawLabel(lxR, lyR, `${theta1Deg.toFixed(2)}°`, "green");
           }
 
           resultHTML += `<div class="warning">เกิดการสะท้อนกลับหมด</div>`;
