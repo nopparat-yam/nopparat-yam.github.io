@@ -85,7 +85,8 @@
       font-size: 15px;
     }
 
-    .custom-controls input[type="number"] {
+    .custom-controls input[type="number"],
+    #angleInput {
       width: 88px;
       height: 40px;
       box-sizing: border-box;
@@ -242,11 +243,13 @@
       }
 
       select,
-      .custom-controls input[type="number"] {
+      .custom-controls input[type="number"],
+      #angleInput {
         font-size: 17px;
       }
 
-      .custom-controls input[type="number"] {
+      .custom-controls input[type="number"],
+      #angleInput {
         width: 88px;
         height: 44px;
       }
@@ -404,11 +407,12 @@
 
   <!-- moved angle controls here so the slider sits below the result text -->
   <div class="angle-block" id="angleBlockBelow">
-    <label for="angle">มุมตกกระทบ (θ₁): <span style="min-width:56px; display: inline-block;"> <span
-          id="angleValue">30</span>°</span></label>
+    <label for="angleInput">มุมตกกระทบ (θ₁):
+      <input type="number" id="angleInput" min="0" max="89" value="30" step="0.01">
+      °
+    </label>
     <div class="angle-controls">
-      <input type="range" id="angle" min="0" max="89" value="30">
-
+      <input type="range" id="angle" min="0" max="89" value="30" step="0.01">
     </div>
   </div>
 
@@ -433,7 +437,7 @@
       const n1ValueSpan = document.getElementById("n1value");
       const n2ValueSpan = document.getElementById("n2value");
       const angleSlider = document.getElementById("angle");
-      const angleValue = document.getElementById("angleValue");
+      const angleInput = document.getElementById("angleInput");
       const resultDiv = document.getElementById("result");
       const showAnglesCheckbox = document.getElementById("showAngles");
       const controlsCenter = document.querySelector('.controls-center');
@@ -525,10 +529,35 @@
       function draw() {
         const n1 = getNValue(n1Select, n1Input);
         const n2 = getNValue(n2Select, n2Input);
-        const theta1Deg = parseFloat(angleSlider.value);
+
+        // ค่ามุมจาก slider (องศา)
+        let theta1Deg = parseFloat(angleSlider.value);
+        if (!isFinite(theta1Deg)) theta1Deg = 0;
+
+        // คำนวณมุมวิกฤต (ถ้ามี) จาก n1, n2
+        let criticalAngleDeg = null;
+        if (n1 > n2 && n1 > 0 && n2 > 0) {
+          const ratio = n2 / n1;
+          if (ratio <= 1) {
+            criticalAngleDeg = Math.asin(ratio) * 180 / Math.PI;
+          }
+        }
+
+        // ปรับค่าให้ละเอียด 2 ตำแหน่ง
+        theta1Deg = Math.round(theta1Deg * 100) / 100;
+
+        // ถ้ามีมุมวิกฤต และ slider อยู่ใกล้มุมวิกฤตมาก ๆ ให้ snap เข้าค่านั้น
+        if (criticalAngleDeg !== null) {
+          const snapTolerance = 0.1; // ถ้าเข้าใกล้ภายใน 0.1° ให้ดึงเข้ามุมวิกฤต
+          if (Math.abs(theta1Deg - criticalAngleDeg) < snapTolerance) {
+            theta1Deg = criticalAngleDeg;
+            angleSlider.value = criticalAngleDeg.toFixed(2);
+          }
+        }
+
         const theta1 = theta1Deg * Math.PI / 180;
 
-        angleValue.textContent = theta1Deg;
+        if (angleInput) angleInput.value = theta1Deg.toFixed(2);
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -554,6 +583,19 @@
         ctx.moveTo(0, centerY);
         ctx.lineTo(canvas.width, centerY);
         ctx.stroke();
+
+        // ข้อความชื่อสื่อกลางทั้งสองด้านซ้ายของรูป
+        ctx.font = "18px Arial";
+        ctx.fillStyle = "black";
+        ctx.textAlign = "left";
+        ctx.textBaseline = "top";
+        const n1Label = n1Select.options[n1Select.selectedIndex]?.text || "";
+        const n2Label = n2Select.options[n2Select.selectedIndex]?.text || "";
+        const labelMarginX = 8;
+        const labelMarginY = 6;
+        ctx.fillText(`ตัวกลางที่ 1 : ${n1Label}`, labelMarginX, labelMarginY);
+        ctx.textBaseline = "bottom";
+        ctx.fillText(`ตัวกลางที่ 2 : ${n2Label}`, labelMarginX, displayHeight - labelMarginY);
 
         // เส้นตั้งฉาก (แนวตั้ง แบบปะ)
         ctx.setLineDash([5, 5]);
@@ -600,7 +642,12 @@
         if (Math.abs(sinTheta2) <= 1) {
           const theta2 = Math.asin(sinTheta2);
           const theta2Deg = theta2 * 180 / Math.PI;
-          resultHTML += `<div class="warning"> </div>`;
+          // แสดงมุมวิกฤตเฉพาะตอนที่มุมตกกระทบอยู่ที่มุมวิกฤต (ไม่ใช่เลยไปเป็นสะท้อนกลับหมด)
+          if (criticalAngleDeg !== null && Math.abs(theta1Deg - criticalAngleDeg) < 0.05) {
+            resultHTML += `<div class="warning">มุมวิกฤต ≈ ${criticalAngleDeg.toFixed(2)}°</div>`;
+          } else {
+            resultHTML += `<div class="warning"> </div>`;
+          }
           resultHTML += `มุมหักเห = ${theta2Deg.toFixed(2)}°<br>`;
 
           let x2 = centerX + length * Math.sin(theta2);
@@ -650,13 +697,47 @@
           }
 
           resultHTML += `<div class="warning">เกิดการสะท้อนกลับหมด</div>`;
-          resultHTML += `มุมสะท้อน = ${theta1Deg}°<br>`;
+          resultHTML += `มุมสะท้อน = ${theta1Deg.toFixed(2)}°<br>`;
         }
 
         resultDiv.innerHTML = resultHTML;
       }
 
-      angleSlider.oninput = draw;
+      // sync slider -> input -> วาดใหม่
+      angleSlider.oninput = () => {
+        let v = parseFloat(angleSlider.value);
+        if (!isFinite(v)) v = 0;
+        if (v < 0) v = 0;
+        if (v > 89) v = 89;
+        angleSlider.value = v.toFixed(2);
+        if (angleInput) angleInput.value = v.toFixed(2);
+        draw();
+      };
+
+      // ฟังก์ชันช่วย: อ่านค่าจาก input, บีบให้อยู่ในช่วง 0–89 แล้ว sync ไป slider
+      function applyAngleInput() {
+        if (!angleInput) return;
+        let v = parseFloat(angleInput.value);
+        if (isNaN(v)) v = 0;
+        if (v < 0) v = 0;
+        if (v > 89) v = 89;
+        v = Math.round(v * 100) / 100;
+        angleInput.value = v.toFixed(2);
+        angleSlider.value = v.toFixed(2);
+        draw();
+      }
+
+      // เมื่อกรอกเสร็จแล้วออกจากช่อง หรือกด Enter ให้ใช้ค่าที่กรอก
+      if (angleInput) {
+        angleInput.addEventListener('blur', applyAngleInput);
+        angleInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            applyAngleInput();
+          }
+        });
+      }
+
       showAnglesCheckbox.addEventListener('change', draw);
       n1Input.addEventListener("blur", () => validateInput(n1Input));
       n2Input.addEventListener("blur", () => validateInput(n2Input));
