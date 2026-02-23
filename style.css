@@ -343,3 +343,34 @@ button {
   margin: 0.5em 0;
   min-height: 1em;
 }
+
+/* จำกัดความกว้างหลักของเนื้อหาทั้งหมด */
+.container {
+  margin-top: 12px;
+  max-width: 920px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 10px;
+  padding-right: 10px;
+  box-sizing: border-box;
+}
+
+/* review block */
+.review-wrapper {
+  background: #ffffffaa;
+  padding: 14px;
+  border-radius: 6px;
+  width: 100%;
+  margin-top: 10px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  box-sizing: border-box;
+}
+
+/* iframe ต้องไม่ล้น */
+.review-wrapper iframe {
+  width: 100%;
+  height: 640px;
+  border: none;
+  border-radius: 6px;
+  display: block;
+}
