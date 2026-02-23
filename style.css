@@ -340,7 +340,7 @@ button {
   min-height: 1em;
 }
 
-/* จำกัดความกว้างหลักของเนื้อหาทั้งหมด */
+
 .container {
   margin-top: 12px;
   max-width: 920px;
@@ -354,6 +354,7 @@ button {
 .review-wrapper {
   width: 100%;
   max-width: 920px;
+
   margin: 16px auto;
 }
 
