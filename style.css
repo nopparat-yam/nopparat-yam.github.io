@@ -4,10 +4,6 @@ body {
   background: #f4f6f9;
 }
 
-.container {
-  margin-top: 12px;
-}
-
 canvas {
   border: 1px solid black;
   background: white;
@@ -355,22 +351,16 @@ button {
   box-sizing: border-box;
 }
 
-/* review block */
 .review-wrapper {
-  background: #ffffffaa;
-  padding: 14px;
-  border-radius: 6px;
   width: 100%;
-  margin-top: 10px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-  box-sizing: border-box;
+  max-width: 920px;
+  margin: 16px auto;
 }
 
-/* iframe ต้องไม่ล้น */
 .review-wrapper iframe {
   width: 100%;
-  height: 640px;
+  height: 620px;
   border: none;
-  border-radius: 6px;
-  display: block;
+  border-radius: 8px;
+  background: white;
 }
