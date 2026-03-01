@@ -366,7 +366,11 @@
             const btn = document.getElementById(id);
             const run = () => {
                 input.value = (parseFloat(input.value) + delta).toFixed(3);
-                n1Sel.value = 'custom'; n2Sel.value = 'custom'; updatePhysics();
+                if (input == n1Inp)
+                    n1Sel.value = 'custom';
+                if (input == n2Inp)
+                    n2Sel.value = 'custom';
+                updatePhysics();
             };
             btn.onmousedown = () => { run(); holdTimer = setInterval(run, 100); };
             btn.onmouseup = btn.onmouseleave = () => clearInterval(holdTimer);
