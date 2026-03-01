@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>สื่อจำลองการหักเหของแสง (Snell's Law)</title>
+    <title>Interactive Snell's Law Simulator</title>
+    <link rel="icon" type="image/png" href="icon.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap');
@@ -12,16 +13,19 @@
         body {
             font-family: 'Sarabun', sans-serif;
             background-color: #f8fafc;
-            touch-action: manipulation;
+            /* อนุญาตให้เลื่อนหน้าจอในแนวตั้งได้ปกติ */
+            touch-action: pan-y;
         }
 
         canvas {
             background-color: white;
-            touch-action: none;
+            /* ปรับให้ Canvas ยอมรับการเลื่อนแนวตั้งเพื่อไม่ให้บล็อกการ Scroll ทั้งหน้าจอ */
+            touch-action: pan-y;
             width: 100%;
             height: auto;
             border-radius: 12px;
             box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+            display: block;
         }
 
         .control-card {
@@ -31,7 +35,6 @@
             border: 1px solid #e2e8f0;
         }
 
-        /* ปรับแต่งช่อง Input ให้ดูรู้ว่าพิมพ์ได้ */
         .index-input {
             border: 2px solid #e2e8f0;
             border-radius: 8px;
@@ -83,7 +86,7 @@
 <body class="p-4 md:p-8">
 
     <div class="max-w-2xl mx-auto space-y-4">
-        <h1 class="text-2xl font-bold text-center text-slate-800 mb-6">การหักเหของแสง (Snell's Law)</h1>
+        <h1 class="text-2xl font-bold text-center text-slate-800 mb-6">สื่อจำลองการหักเหของแสง (Snell's Law)</h1>
 
         <!-- Medium Selection -->
         <div class="grid grid-cols-2 gap-4">
@@ -195,20 +198,74 @@
 
         let criticalAngle = null;
         let holdTimer;
+        let isDragging = false;
 
         // ฟังก์ชันช่วยจำกัดค่าดัชนีหักเห
         function validateIndex(input) {
             let val = parseFloat(input.value);
             if (isNaN(val)) return 1.0;
-            if (val < 1.0) val = 1.0; // ดัชนีหักเหต้องไม่น้อยกว่า 1 (สุญญากาศ)
-            if (val > 10.0) val = 10.0; // จำกัดเพดานไว้ที่ 10 เพื่อความสวยงามของภาพ
+            if (val < 1.0) val = 1.0;
+            if (val > 10.0) val = 10.0;
             return val;
+        }
+
+        // จัดการเหตุการณ์สัมผัสบน Canvas เพื่อให้เลื่อนหน้าจอได้
+        canvas.addEventListener('touchstart', (e) => {
+            isDragging = true;
+            handleCanvasInteract(e);
+        }, { passive: false });
+
+        canvas.addEventListener('touchmove', (e) => {
+            if (isDragging) {
+                // บล็อกการ Scroll เฉพาะเวลาที่กำลังลากนิ้วบนพื้นที่รูปภาพแสง
+                if (e.cancelable) e.preventDefault();
+                handleCanvasInteract(e);
+            }
+        }, { passive: false });
+
+        canvas.addEventListener('touchend', () => {
+            isDragging = false;
+        });
+
+        canvas.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            handleCanvasInteract(e);
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (isDragging) handleCanvasInteract(e);
+        });
+
+        window.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+
+        function handleCanvasInteract(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            const x = clientX - rect.left;
+            const y = clientY - rect.top;
+
+            const cx = rect.width / 2;
+            const cy = rect.height / 2;
+
+            // ปรับมุมเฉพาะเมื่อลากในพื้นที่ครึ่งบน (มุมตกกระทบ)
+            if (y < cy) {
+                const angleRad = Math.atan2(cx - x, cy - y);
+                let angleDeg = angleRad * 180 / Math.PI;
+                if (angleDeg < 0) angleDeg = 0;
+                if (angleDeg > 89.99) angleDeg = 89.99;
+                slider.value = angleDeg;
+                updatePhysics();
+            }
         }
 
         function setupHoldEffect(btnId, inputEl, selectEl, delta) {
             const btn = document.getElementById(btnId);
             const start = (e) => {
-                if (e.cancelable) e.preventDefault();
+                if (e.cancelable && e.type === 'touchstart') e.preventDefault();
                 const run = () => {
                     let newVal = parseFloat(inputEl.value) + delta;
                     if (newVal < 1.0) newVal = 1.0;
@@ -232,7 +289,6 @@
         setupHoldEffect('n2minus', n2Inp, n2Sel, -0.01); setupHoldEffect('n2plus', n2Inp, n2Sel, 0.01);
 
         function updatePhysics() {
-            // ตรวจสอบความถูกต้องของค่าที่พิมพ์
             const n1 = validateIndex(n1Inp);
             const n2 = validateIndex(n2Inp);
 
@@ -307,7 +363,7 @@
                 isTIR = true;
                 drawRay(cx, cy, cx + r * Math.sin(t1Rad), cy - r * Math.cos(t1Rad), '#f59e0b', 3);
                 resultText.innerHTML = `<span class="text-orange-600">สะท้อนกลับหมด</span>`;
-                badgeStatus.textContent = "Total internal reflection";
+                badgeStatus.textContent = "T.I.R.";
                 badgeStatus.className = "px-3 py-1 rounded-full text-[10px] font-bold uppercase bg-orange-100 text-orange-700";
                 statusLabel.textContent = "แสงสะท้อนกลับในตัวกลางเดิม";
             } else {
@@ -375,11 +431,9 @@
         n1Sel.onchange = (e) => { if (e.target.value !== 'custom') n1Inp.value = e.target.value; updatePhysics(); };
         n2Sel.onchange = (e) => { if (e.target.value !== 'custom') n2Inp.value = e.target.value; updatePhysics(); };
 
-        // เมื่อพิมพ์ค่า: เปลี่ยน Select เป็น custom และตรวจสอบค่าทันที
         n1Inp.oninput = () => { n1Sel.value = 'custom'; updatePhysics(); };
         n2Inp.oninput = () => { n2Sel.value = 'custom'; updatePhysics(); };
 
-        // เมื่อเลิกพิมพ์ (blur): ถ้าค่าน้อยกว่า 1 ให้แก้กลับเป็น 1
         n1Inp.onblur = () => { n1Inp.value = validateIndex(n1Inp).toFixed(3); updatePhysics(); };
         n2Inp.onblur = () => { n2Inp.value = validateIndex(n2Inp).toFixed(3); updatePhysics(); };
 
