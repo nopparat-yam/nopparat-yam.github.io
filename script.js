@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
             resultText.className = "text-2xl font-bold text-emerald-600";
             resultText.innerHTML = `${t1Deg.toFixed(2)}°`;
 
-            badgeStatus.textContent = "TIR";
+            badgeStatus.textContent = "Total internal reflection";
             badgeStatus.className = "px-4 py-1.5 rounded-full text-xs font-black bg-emerald-600 text-white shadow-md";
             statusLabel.textContent = "สะท้อนกลับหมด";
 
