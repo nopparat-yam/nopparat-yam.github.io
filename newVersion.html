@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>สื่อจำลองการหักเหของแสง (Snell's Law)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #f8fafc;
+            touch-action: manipulation;
+        }
+
+        canvas {
+            background-color: white;
+            touch-action: none;
+            width: 100%;
+            height: auto;
+            border-radius: 12px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .control-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            border: 1px solid #e2e8f0;
+        }
+
+        /* ปรับแต่งช่อง Input ให้ดูรู้ว่าพิมพ์ได้ */
+        .index-input {
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            background-color: #ffffff;
+            transition: all 0.2s;
+        }
+
+        .index-input:focus {
+            border-color: #3b82f6;
+            background-color: #f0f7ff;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        input[type=range] {
+            height: 36px;
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 10px;
+            cursor: pointer;
+            background: #e2e8f0;
+            border-radius: 5px;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            height: 28px;
+            width: 28px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            -webkit-appearance: none;
+            margin-top: -9px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 2px solid white;
+        }
+
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body class="p-4 md:p-8">
+
+    <div class="max-w-2xl mx-auto space-y-4">
+        <h1 class="text-2xl font-bold text-center text-slate-800 mb-6">การหักเหของแสง (Snell's Law)</h1>
+
+        <!-- Medium Selection -->
+        <div class="grid grid-cols-2 gap-4">
+            <div class="control-card p-4 border-t-4 border-blue-500 text-center">
+                <label class="font-bold text-blue-600 text-sm block mb-2">ตัวกลางที่ 1 (บน)</label>
+                <select id="n1select"
+                    class="w-full p-2 border rounded-lg mb-3 bg-slate-50 text-sm outline-none focus:ring-2 focus:ring-blue-400">
+                    <option value="1.0003">อากาศ (1.00)</option>
+                    <option value="1.33">น้ำ (1.33)</option>
+                    <option value="1.52">แก้ว (1.52)</option>
+                    <option value="2.42">เพชร (2.42)</option>
+                    <option value="custom">กำหนดเอง</option>
+                </select>
+                <div class="flex items-center justify-center gap-2">
+                    <button id="n1minus"
+                        class="w-8 h-8 flex items-center justify-center bg-slate-100 rounded-full hover:bg-slate-200 active:scale-90 transition-all text-slate-600 font-bold">-</button>
+                    <input type="number" id="n1input" min="1.000" max="10.000" step="0.001" value="1.000"
+                        class="index-input w-24 text-center font-bold text-blue-700 outline-none text-lg py-1">
+                    <button id="n1plus"
+                        class="w-8 h-8 flex items-center justify-center bg-slate-100 rounded-full hover:bg-slate-200 active:scale-90 transition-all text-slate-600 font-bold">+</button>
+                </div>
+                <p class="text-[10px] text-slate-400 mt-1 uppercase font-bold tracking-widest">ดัชนีหักเห n₁ (1.0 -
+                    10.0)</p>
+            </div>
+
+            <div class="control-card p-4 border-t-4 border-emerald-500 text-center">
+                <label class="font-bold text-emerald-600 text-sm block mb-2">ตัวกลางที่ 2 (ล่าง)</label>
+                <select id="n2select"
+                    class="w-full p-2 border rounded-lg mb-3 bg-slate-50 text-sm outline-none focus:ring-2 focus:ring-emerald-400">
+                    <option value="1.33">น้ำ (1.33)</option>
+                    <option value="1.0003">อากาศ (1.00)</option>
+                    <option value="1.52">แก้ว (1.52)</option>
+                    <option value="2.42">เพชร (2.42)</option>
+                    <option value="custom">กำหนดเอง</option>
+                </select>
+                <div class="flex items-center justify-center gap-2">
+                    <button id="n2minus"
+                        class="w-8 h-8 flex items-center justify-center bg-slate-100 rounded-full hover:bg-slate-200 active:scale-90 transition-all text-slate-600 font-bold">-</button>
+                    <input type="number" id="n2input" min="1.000" max="10.000" step="0.001" value="1.330"
+                        class="index-input w-24 text-center font-bold text-emerald-700 outline-none text-lg py-1">
+                    <button id="n2plus"
+                        class="w-8 h-8 flex items-center justify-center bg-slate-100 rounded-full hover:bg-slate-200 active:scale-90 transition-all text-slate-600 font-bold">+</button>
+                </div>
+                <p class="text-[10px] text-slate-400 mt-1 uppercase font-bold tracking-widest">ดัชนีหักเห n₂ (1.0 -
+                    10.0)</p>
+            </div>
+        </div>
+
+        <!-- Simulation View -->
+        <div class="control-card p-2 relative">
+            <canvas id="mainCanvas" width="600" height="400"></canvas>
+
+            <button id="criticalBtn"
+                class="invisible absolute top-4 right-4 bg-amber-500 hover:bg-amber-600 text-white text-[10px] font-bold px-4 py-2 rounded-full shadow-xl transition-all active:scale-95 border-2 border-white uppercase tracking-wider">
+                ไปที่มุมวิกฤต
+            </button>
+
+            <div
+                class="grid grid-cols-2 divide-x divide-slate-100 bg-slate-50 rounded-b-xl border-t border-slate-100 mt-2">
+                <div class="p-3 text-center">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">มุมตกกระทบ (θ₁)</p>
+                    <div class="flex items-center justify-center gap-1">
+                        <input type="number" id="angleText" value="30.00" step="0.01"
+                            class="text-2xl font-bold w-24 outline-none text-red-500 bg-transparent text-center">
+                        <span class="text-xl font-bold text-red-500">°</span>
+                    </div>
+                </div>
+                <div class="p-3 text-center">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">มุมหักเห (θ₂)</p>
+                    <div id="resultText" class="text-2xl font-bold text-slate-700">--°</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slider & Options -->
+        <div class="control-card p-6 space-y-4">
+            <div class="flex justify-between text-xs font-bold text-slate-400 px-1">
+                <span>0°</span>
+                <span id="statusLabel" class="text-blue-500 uppercase tracking-widest">ปรับมุมเพื่อดูการหักเห</span>
+                <span>90°</span>
+            </div>
+            <input type="range" id="angleSlider" min="0" max="89.99" step="0.01" value="30" class="w-full">
+
+            <div class="flex items-center justify-between pt-2">
+                <label class="flex items-center gap-2 text-sm font-medium text-slate-600 cursor-pointer">
+                    <input type="checkbox" id="showValues" checked
+                        class="w-5 h-5 accent-blue-500 rounded border-slate-300">
+                    แสดงเส้นบอกมุมและค่าองศา
+                </label>
+                <div id="badgeStatus" class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-tight">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('mainCanvas');
+        const ctx = canvas.getContext('2d');
+        const n1Sel = document.getElementById('n1select'), n2Sel = document.getElementById('n2select');
+        const n1Inp = document.getElementById('n1input'), n2Inp = document.getElementById('n2input');
+        const slider = document.getElementById('angleSlider'), angleText = document.getElementById('angleText');
+        const resultText = document.getElementById('resultText'), critBtn = document.getElementById('criticalBtn');
+        const showValCheck = document.getElementById('showValues'), badgeStatus = document.getElementById('badgeStatus');
+        const statusLabel = document.getElementById('statusLabel');
+
+        let criticalAngle = null;
+        let holdTimer;
+
+        // ฟังก์ชันช่วยจำกัดค่าดัชนีหักเห
+        function validateIndex(input) {
+            let val = parseFloat(input.value);
+            if (isNaN(val)) return 1.0;
+            if (val < 1.0) val = 1.0; // ดัชนีหักเหต้องไม่น้อยกว่า 1 (สุญญากาศ)
+            if (val > 10.0) val = 10.0; // จำกัดเพดานไว้ที่ 10 เพื่อความสวยงามของภาพ
+            return val;
+        }
+
+        function setupHoldEffect(btnId, inputEl, selectEl, delta) {
+            const btn = document.getElementById(btnId);
+            const start = (e) => {
+                if (e.cancelable) e.preventDefault();
+                const run = () => {
+                    let newVal = parseFloat(inputEl.value) + delta;
+                    if (newVal < 1.0) newVal = 1.0;
+                    if (newVal > 10.0) newVal = 10.0;
+                    inputEl.value = newVal.toFixed(3);
+                    selectEl.value = 'custom';
+                    updatePhysics();
+                };
+                run();
+                holdTimer = setInterval(run, 80);
+            };
+            const stop = () => clearInterval(holdTimer);
+            btn.addEventListener('mousedown', start);
+            btn.addEventListener('mouseup', stop);
+            btn.addEventListener('mouseleave', stop);
+            btn.addEventListener('touchstart', start);
+            btn.addEventListener('touchend', stop);
+        }
+
+        setupHoldEffect('n1minus', n1Inp, n1Sel, -0.01); setupHoldEffect('n1plus', n1Inp, n1Sel, 0.01);
+        setupHoldEffect('n2minus', n2Inp, n2Sel, -0.01); setupHoldEffect('n2plus', n2Inp, n2Sel, 0.01);
+
+        function updatePhysics() {
+            // ตรวจสอบความถูกต้องของค่าที่พิมพ์
+            const n1 = validateIndex(n1Inp);
+            const n2 = validateIndex(n2Inp);
+
+            let t1Deg = parseFloat(slider.value);
+
+            if (n1 > n2) {
+                criticalAngle = (Math.asin(n2 / n1) * 180 / Math.PI);
+                critBtn.style.visibility = 'visible';
+                critBtn.textContent = `ไปที่มุมวิกฤต: ${criticalAngle.toFixed(2)}°`;
+                if (Math.abs(t1Deg - criticalAngle) < 0.3) {
+                    t1Deg = criticalAngle;
+                    slider.value = t1Deg;
+                }
+            } else {
+                criticalAngle = null;
+                critBtn.style.visibility = 'hidden';
+            }
+
+            angleText.value = t1Deg.toFixed(2);
+            draw(n1, n2, t1Deg);
+        }
+
+        function draw(n1, n2, t1Deg) {
+            const w = canvas.width, h = canvas.height;
+            const cx = w / 2, cy = h / 2, r = 160;
+            ctx.clearRect(0, 0, w, h);
+
+            ctx.fillStyle = '#f1f5f9'; ctx.fillRect(0, 0, w, cy);
+            ctx.fillStyle = '#e2e8f0'; ctx.fillRect(0, cy, w, cy);
+
+            ctx.font = 'bold 12px Sarabun';
+            ctx.textAlign = 'left';
+
+            const n1Name = n1Sel.options[n1Sel.selectedIndex].text.split(' ')[0];
+            ctx.fillStyle = '#64748b';
+            ctx.fillText(`ตัวกลางที่ 1: ${n1Name}`, 15, 25);
+
+            const n2Name = n2Sel.options[n2Sel.selectedIndex].text.split(' ')[0];
+            ctx.fillStyle = '#475569';
+            ctx.fillText(`ตัวกลางที่ 2: ${n2Name}`, 15, h - 15);
+
+            ctx.beginPath(); ctx.strokeStyle = '#94a3b8'; ctx.setLineDash([8, 6]); ctx.lineWidth = 1;
+            ctx.moveTo(cx, 0); ctx.lineTo(cx, h); ctx.stroke(); ctx.setLineDash([]);
+
+            ctx.beginPath(); ctx.strokeStyle = '#334155'; ctx.lineWidth = 2;
+            ctx.moveTo(20, cy); ctx.lineTo(w - 20, cy); ctx.stroke();
+
+            const t1Rad = t1Deg * Math.PI / 180;
+            const sinT2 = (n1 * Math.sin(t1Rad)) / n2;
+
+            if (showValCheck.checked) {
+                if (t1Deg > 1) {
+                    ctx.beginPath(); ctx.strokeStyle = 'rgba(239, 68, 68, 0.4)'; ctx.lineWidth = 2;
+                    ctx.arc(cx, cy, 50, -Math.PI / 2, -Math.PI / 2 - t1Rad, true); ctx.stroke();
+                }
+                if (sinT2 <= 1.0001) {
+                    const t2Rad = Math.asin(Math.min(1, sinT2));
+                    if (t2Rad * 180 / Math.PI > 1) {
+                        ctx.beginPath(); ctx.strokeStyle = 'rgba(59, 130, 246, 0.4)'; ctx.lineWidth = 2;
+                        ctx.arc(cx, cy, 50, Math.PI / 2, Math.PI / 2 - t2Rad, true); ctx.stroke();
+                    }
+                }
+            }
+
+            drawRay(cx - r * Math.sin(t1Rad), cy - r * Math.cos(t1Rad), cx, cy, '#ef4444', 3);
+
+            let t2DegResult = 0;
+            let isTIR = false;
+            let isCrit = false;
+
+            if (sinT2 > 1.0001) {
+                isTIR = true;
+                drawRay(cx, cy, cx + r * Math.sin(t1Rad), cy - r * Math.cos(t1Rad), '#f59e0b', 3);
+                resultText.innerHTML = `<span class="text-orange-600">สะท้อนกลับหมด</span>`;
+                badgeStatus.textContent = "T.I.R.";
+                badgeStatus.className = "px-3 py-1 rounded-full text-[10px] font-bold uppercase bg-orange-100 text-orange-700";
+                statusLabel.textContent = "แสงสะท้อนกลับในตัวกลางเดิม";
+            } else {
+                isCrit = criticalAngle && Math.abs(t1Deg - criticalAngle) < 0.05;
+                const t2Rad = Math.asin(Math.min(1, sinT2));
+                t2DegResult = t2Rad * 180 / Math.PI;
+
+                const rayColor = isCrit ? '#f59e0b' : '#3b82f6';
+                const rayWidth = isCrit ? 4 : 3;
+                const targetR = isCrit ? r + 40 : r;
+
+                drawRay(cx, cy, cx + targetR * Math.sin(t2Rad), cy + targetR * Math.cos(t2Rad), rayColor, rayWidth);
+
+                resultText.innerHTML = `<span class="${isCrit ? 'text-amber-600' : 'text-slate-700'}">${t2DegResult.toFixed(2)}°</span>`;
+                badgeStatus.textContent = isCrit ? "Critical Angle" : "Refraction";
+                badgeStatus.className = `px-3 py-1 rounded-full text-[10px] font-bold uppercase ${isCrit ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'}`;
+                statusLabel.textContent = isCrit ? "แสงหักเหขนานผิวสัมผัสพอดี" : "แสงเดินทางเข้าสู่ตัวกลางใหม่";
+            }
+
+            if (showValCheck.checked) {
+                ctx.font = 'bold 13px Sarabun';
+                ctx.textAlign = 'center';
+
+                if (t1Deg > 1) {
+                    const tx1 = cx - 75 * Math.sin(t1Rad / 2);
+                    const ty1 = cy - 75 * Math.cos(t1Rad / 2);
+                    drawTextWithTransparentHalo(`${t1Deg.toFixed(2)}°`, tx1, ty1, '#b91c1c');
+                }
+
+                if (!isTIR) {
+                    if (t2DegResult > 1) {
+                        const t2Rad = t2DegResult * Math.PI / 180;
+                        const tx2 = cx + 80 * Math.sin(t2Rad / 2);
+                        const ty2 = cy + 80 * Math.cos(t2Rad / 2);
+                        const color = isCrit ? '#d97706' : '#1d4ed8';
+                        drawTextWithTransparentHalo(`${t2DegResult.toFixed(2)}°`, tx2, ty2, color);
+                    }
+                }
+            }
+        }
+
+        function drawTextWithTransparentHalo(text, x, y, color) {
+            ctx.save();
+            ctx.shadowColor = "rgba(255, 255, 255, 0.8)";
+            ctx.shadowBlur = 8;
+            ctx.lineWidth = 5;
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.6)";
+            ctx.strokeText(text, x, y);
+            ctx.fillStyle = color;
+            ctx.fillText(text, x, y);
+            ctx.restore();
+        }
+
+        function drawRay(x1, y1, x2, y2, color, width) {
+            ctx.beginPath(); ctx.strokeStyle = color; ctx.lineWidth = width; ctx.lineCap = 'round';
+            ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+            const angle = Math.atan2(y2 - y1, x2 - x1);
+            ctx.beginPath(); ctx.fillStyle = color;
+            ctx.moveTo(x2, y2);
+            ctx.lineTo(x2 - 12 * Math.cos(angle - 0.4), y2 - 12 * Math.sin(angle - 0.4));
+            ctx.lineTo(x2 - 12 * Math.cos(angle + 0.4), y2 - 12 * Math.sin(angle + 0.4));
+            ctx.fill();
+        }
+
+        n1Sel.onchange = (e) => { if (e.target.value !== 'custom') n1Inp.value = e.target.value; updatePhysics(); };
+        n2Sel.onchange = (e) => { if (e.target.value !== 'custom') n2Inp.value = e.target.value; updatePhysics(); };
+
+        // เมื่อพิมพ์ค่า: เปลี่ยน Select เป็น custom และตรวจสอบค่าทันที
+        n1Inp.oninput = () => { n1Sel.value = 'custom'; updatePhysics(); };
+        n2Inp.oninput = () => { n2Sel.value = 'custom'; updatePhysics(); };
+
+        // เมื่อเลิกพิมพ์ (blur): ถ้าค่าน้อยกว่า 1 ให้แก้กลับเป็น 1
+        n1Inp.onblur = () => { n1Inp.value = validateIndex(n1Inp).toFixed(3); updatePhysics(); };
+        n2Inp.onblur = () => { n2Inp.value = validateIndex(n2Inp).toFixed(3); updatePhysics(); };
+
+        slider.oninput = updatePhysics;
+        angleText.onchange = () => { slider.value = angleText.value; updatePhysics(); };
+        critBtn.onclick = () => { if (criticalAngle) { slider.value = criticalAngle; updatePhysics(); } };
+        showValCheck.onchange = updatePhysics;
+
+        updatePhysics();
+    </script>
+</body>
+
+</html>
