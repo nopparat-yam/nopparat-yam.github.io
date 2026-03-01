@@ -76,7 +76,9 @@
         <!-- ส่วนควบคุมดัชนีหักเห -->
         <div class="grid grid-cols-2 gap-3">
             <div class="control-card p-3 border-t-4 border-blue-500">
-                <label class="font-bold text-blue-600 text-[10px] block mb-1 text-center uppercase tracking-wider">ตัวกลางที่ 1 (บน)</label>
+                <label
+                    class="font-bold text-blue-600 text-[10px] block mb-1 text-center uppercase tracking-wider">ตัวกลางที่
+                    1 (บน)</label>
                 <select id="n1select" class="w-full p-2 border rounded-lg mb-2 bg-slate-50 text-xs outline-none">
                     <option value="1.0000">สุญญากาศ</option>
                     <option value="1.0003">อากาศ</option>
@@ -86,14 +88,19 @@
                     <option value="custom">กำหนดเอง</option>
                 </select>
                 <div class="flex items-center justify-center gap-1">
-                    <button id="n1minus" class="w-7 h-7 flex items-center justify-center bg-slate-100 rounded-full text-slate-600 font-bold text-sm">-</button>
-                    <input type="number" id="n1input" step="0.001" value="1.520" class="index-input w-16 text-center font-bold text-blue-700 py-1 text-sm">
-                    <button id="n1plus" class="w-7 h-7 flex items-center justify-center bg-slate-100 rounded-full text-slate-600 font-bold text-sm">+</button>
+                    <button id="n1minus"
+                        class="w-7 h-7 flex items-center justify-center bg-slate-100 rounded-full text-slate-600 font-bold text-sm">-</button>
+                    <input type="number" id="n1input" step="0.001" value="1.520"
+                        class="index-input w-16 text-center font-bold text-blue-700 py-1 text-sm">
+                    <button id="n1plus"
+                        class="w-7 h-7 flex items-center justify-center bg-slate-100 rounded-full text-slate-600 font-bold text-sm">+</button>
                 </div>
             </div>
 
             <div class="control-card p-3 border-t-4 border-emerald-500">
-                <label class="font-bold text-emerald-600 text-[10px] block mb-1 text-center uppercase tracking-wider">ตัวกลางที่ 2 (ล่าง)</label>
+                <label
+                    class="font-bold text-emerald-600 text-[10px] block mb-1 text-center uppercase tracking-wider">ตัวกลางที่
+                    2 (ล่าง)</label>
                 <select id="n2select" class="w-full p-2 border rounded-lg mb-2 bg-slate-50 text-xs outline-none">
                     <option value="1.0000">สุญญากาศ</option>
                     <option value="1.0003" selected>อากาศ</option>
@@ -103,9 +110,12 @@
                     <option value="custom">กำหนดเอง</option>
                 </select>
                 <div class="flex items-center justify-center gap-1">
-                    <button id="n2minus" class="w-7 h-7 flex items-center justify-center bg-slate-100 rounded-full text-slate-600 font-bold text-sm">-</button>
-                    <input type="number" id="n2input" step="0.001" value="1.000" class="index-input w-16 text-center font-bold text-emerald-700 py-1 text-sm">
-                    <button id="n2plus" class="w-7 h-7 flex items-center justify-center bg-slate-100 rounded-full text-slate-600 font-bold text-sm">+</button>
+                    <button id="n2minus"
+                        class="w-7 h-7 flex items-center justify-center bg-slate-100 rounded-full text-slate-600 font-bold text-sm">-</button>
+                    <input type="number" id="n2input" step="0.001" value="1.000"
+                        class="index-input w-16 text-center font-bold text-emerald-700 py-1 text-sm">
+                    <button id="n2plus"
+                        class="w-7 h-7 flex items-center justify-center bg-slate-100 rounded-full text-slate-600 font-bold text-sm">+</button>
                 </div>
             </div>
         </div>
@@ -113,16 +123,19 @@
         <!-- Simulation View -->
         <div class="control-card p-2 relative">
             <canvas id="mainCanvas" width="600" height="380"></canvas>
-            
-            <button id="criticalBtn" class="invisible absolute top-4 right-4 bg-amber-500 hover:bg-amber-600 text-white text-[9px] font-bold px-3 py-1.5 rounded-full shadow-md border border-white uppercase transition-all active:scale-95">
+
+            <button id="criticalBtn"
+                class="invisible absolute top-4 right-4 bg-amber-500 hover:bg-amber-600 text-white text-[9px] font-bold px-3 py-1.5 rounded-full shadow-md border border-white uppercase transition-all active:scale-95">
                 CRITICAL ANGLE
             </button>
 
-            <div class="grid grid-cols-2 divide-x divide-slate-100 bg-slate-50/50 rounded-b-xl border-t border-slate-100 mt-2">
+            <div
+                class="grid grid-cols-2 divide-x divide-slate-100 bg-slate-50/50 rounded-b-xl border-t border-slate-100 mt-2">
                 <div class="p-2 text-center">
                     <p class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">θ₁ (ตกกระทบ)</p>
                     <div class="flex items-center justify-center gap-0.5">
-                        <input type="number" id="angleText" value="30.00" step="0.01" class="text-lg font-bold w-16 outline-none text-red-500 bg-transparent text-center">
+                        <input type="number" id="angleText" value="30.00" step="0.01"
+                            class="text-lg font-bold w-16 outline-none text-red-500 bg-transparent text-center">
                         <span class="text-base font-bold text-red-500">°</span>
                     </div>
                 </div>
@@ -137,7 +150,8 @@
         <div class="control-card p-4 space-y-3">
             <div class="flex flex-col md:flex-row items-center gap-4">
                 <div class="flex flex-col items-center shrink-0 min-w-[100px]">
-                    <div id="badgeStatus" class="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider">
+                    <div id="badgeStatus"
+                        class="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider">
                         REFRACTION
                     </div>
                     <span id="statusLabel" class="text-[9px] font-medium text-slate-400 mt-1 text-center">
@@ -150,7 +164,8 @@
             </div>
 
             <div class="flex items-center justify-center border-t border-slate-50 pt-2">
-                <label class="flex items-center gap-2 text-[10px] font-bold text-slate-500 cursor-pointer uppercase tracking-wide">
+                <label
+                    class="flex items-center gap-2 text-[10px] font-bold text-slate-500 cursor-pointer uppercase tracking-wide">
                     <input type="checkbox" id="showValues" checked class="w-3.5 h-3.5 accent-blue-600">
                     แสดงรายละเอียดมุม
                 </label>
@@ -259,7 +274,7 @@
                 // TIR State: GREEN
                 const activeColor = COLORS.TIR;
                 drawRay(cx, cy, cx + r * Math.sin(t1Rad), cy - r * Math.cos(t1Rad), activeColor, 2.5);
-                
+
                 resultText.className = "text-lg font-bold text-emerald-500";
                 resultText.innerHTML = `<span class="uppercase tracking-tight">T.I.R.</span>`;
                 badgeStatus.textContent = "T.I.R.";
@@ -273,7 +288,7 @@
             } else {
                 const t2Rad = Math.asin(Math.min(1.0, sinT2));
                 const t2Deg = t2Rad * 180 / Math.PI;
-                
+
                 // Color Switch Logic: Yellow if Critical, Blue if Refraction
                 const activeColor = isCrit ? COLORS.CRITICAL : COLORS.REFRACTION;
                 const activeTailwindClass = isCrit ? 'text-amber-500' : 'text-blue-600';
@@ -290,13 +305,13 @@
                 // Refracted Angle Arc & Badge on Canvas (Yellow or Blue)
                 if (showValCheck.checked && t2Deg > 0.5) {
                     const arcColor = isCrit ? 'rgba(245, 158, 11, 0.3)' : 'rgba(59, 130, 246, 0.2)';
-                    
-                    ctx.beginPath(); 
-                    ctx.strokeStyle = arcColor; 
+
+                    ctx.beginPath();
+                    ctx.strokeStyle = arcColor;
                     ctx.lineWidth = 2;
-                    ctx.arc(cx, cy, 50, Math.PI / 2, Math.PI / 2 - t2Rad, true); 
+                    ctx.arc(cx, cy, 50, Math.PI / 2, Math.PI / 2 - t2Rad, true);
                     ctx.stroke();
-                    
+
                     drawTextHalo(`${t2Deg.toFixed(2)}°`, cx + 75 * Math.sin(t2Rad / 2), cy + 75 * Math.cos(t2Rad / 2), activeColor);
                 }
             }
@@ -310,16 +325,16 @@
         }
 
         function drawRay(x1, y1, x2, y2, color, width) {
-            ctx.beginPath(); 
-            ctx.strokeStyle = color; 
-            ctx.lineWidth = width; 
+            ctx.beginPath();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = width;
             ctx.lineCap = 'round';
-            ctx.moveTo(x1, y1); 
-            ctx.lineTo(x2, y2); 
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
             ctx.stroke();
 
             const angle = Math.atan2(y2 - y1, x2 - x1);
-            ctx.beginPath(); 
+            ctx.beginPath();
             ctx.fillStyle = color;
             const arrowSize = 10;
             ctx.moveTo(x2, y2);
