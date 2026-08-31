@@ -156,7 +156,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function drawTextHalo(text, x, y, color) {
         ctx.save();
-        // กำหนดฟอนต์ในฟังก์ชันวาดข้อความด้วย
         ctx.font = 'bold 14px Sarabun';
         ctx.textAlign = 'center';
         ctx.shadowColor = "white"; ctx.shadowBlur = 6;
@@ -187,13 +186,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     n1Sel.onchange = () => { if (n1Sel.value !== 'custom') n1Inp.value = n1Sel.value; updatePhysics(); };
     n2Sel.onchange = () => { if (n2Sel.value !== 'custom') n2Inp.value = n2Sel.value; updatePhysics(); };
-    n1Inp.oninput = n2Inp.oninput = updatePhysics;
+    n1Inp.oninput = () => { n1Sel.value = 'custom'; updatePhysics(); };
+    n2Inp.oninput = () => { n2Sel.value = 'custom'; updatePhysics(); };
     slider.oninput = updatePhysics;
     angleText.onchange = () => { slider.value = angleText.value; updatePhysics(); };
     critBtn.onclick = () => { if (criticalAngle) { slider.value = criticalAngle; updatePhysics(); } };
     showValCheck.onchange = updatePhysics;
-
-    // รอโหลดฟอนต์ให้เสร็จก่อนวาดครั้งแรกเพื่อความแม่นยำ
     document.fonts.ready.then(() => {
         updatePhysics();
     });
