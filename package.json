@@ -1,0 +1,31 @@
+{
+  "name": "nopparat-yam.github.io",
+  "version": "1.0.0",
+  "description": "",
+  "main": "script.js",
+  "type": "module",
+  "scripts": {
+    "test": "vitest",
+    "test:ut": "vitest --project ut",
+    "test:ct": "vitest --project ct",
+    "test:run": "vitest run"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nopparat-yam/nopparat-yam.github.io.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nopparat-yam/nopparat-yam.github.io/issues"
+  },
+  "homepage": "https://github.com/nopparat-yam/nopparat-yam.github.io#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.62.1",
+    "@vitest/browser": "^4.1.11",
+    "@vitest/browser-playwright": "^4.1.11",
+    "playwright": "^1.62.1",
+    "vitest": "^4.1.11"
+  }
+}

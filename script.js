@@ -1,3 +1,5 @@
+import { validateIndex, criticalAngle, refract, angleFromPoint } from './server/physics.js';
+
 document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.getElementById('mainCanvas');
     const ctx = canvas.getContext('2d');
@@ -9,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const statusLabel = document.getElementById('statusLabel');
     const labelT2 = document.getElementById('labelT2');
 
-    let criticalAngle = null;
+    let criticalAngleValue = null;
     let isDragging = false;
     let holdTimer;
 
@@ -20,11 +22,6 @@ document.addEventListener('DOMContentLoaded', () => {
         TIR: '#10b981'
     };
 
-    function validateIndex(input) {
-        let val = parseFloat(input.value);
-        return isNaN(val) ? 1.0 : Math.min(10.0, Math.max(1.0, val));
-    }
-
     function handleCanvasInteract(e) {
         const rect = canvas.getBoundingClientRect();
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -32,8 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const x = clientX - rect.left, y = clientY - rect.top;
         const cx = rect.width / 2, cy = rect.height / 2;
         if (y < cy) {
-            const angleDeg = Math.atan2(cx - x, cy - y) * 180 / Math.PI;
-            slider.value = Math.min(89.99, Math.max(0, angleDeg));
+            slider.value = angleFromPoint(x, y, cx, cy);
             updatePhysics();
         }
     }
@@ -46,19 +42,19 @@ document.addEventListener('DOMContentLoaded', () => {
     canvas.addEventListener('touchend', () => isDragging = false);
 
     function updatePhysics() {
-        const n1 = validateIndex(n1Inp), n2 = validateIndex(n2Inp);
+        const n1 = validateIndex(n1Inp.value), n2 = validateIndex(n2Inp.value);
         let t1Deg = parseFloat(slider.value);
 
-        if (n1 > n2) {
-            criticalAngle = Math.asin(n2 / n1) * 180 / Math.PI;
+        criticalAngleValue = criticalAngle(n1, n2);
+
+        if (criticalAngleValue !== null) {
             critBtn.style.visibility = 'visible';
-            critBtn.textContent = `มุมวิกฤต: ${criticalAngle.toFixed(2)}°`;
-            if (Math.abs(t1Deg - criticalAngle) < 0.3) {
-                t1Deg = criticalAngle;
+            critBtn.textContent = `มุมวิกฤต: ${criticalAngleValue.toFixed(2)}°`;
+            if (Math.abs(t1Deg - criticalAngleValue) < 0.3) {
+                t1Deg = criticalAngleValue;
                 slider.value = t1Deg;
             }
         } else {
-            criticalAngle = null;
             critBtn.style.visibility = 'hidden';
         }
         angleText.value = t1Deg.toFixed(2);
@@ -84,12 +80,12 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.moveTo(40, cy); ctx.lineTo(w - 40, cy); ctx.stroke();
 
         const t1Rad = t1Deg * Math.PI / 180;
-        const sinT2 = (n1 * Math.sin(t1Rad)) / n2;
+        const { tir: isTIR, t2Deg } = refract(n1, n2, t1Deg);
+        const t2Rad = t2Deg * Math.PI / 180;
 
         drawRay(cx - r * Math.sin(t1Rad), cy - r * Math.cos(t1Rad), cx, cy, COLORS.INCIDENT, 3);
 
-        let isTIR = sinT2 > 1.0001;
-        let isCrit = criticalAngle && Math.abs(t1Deg - criticalAngle) < 0.05;
+        const isCrit = criticalAngleValue !== null && Math.abs(t1Deg - criticalAngleValue) < 0.05;
 
         if (isTIR) {
             const activeColor = COLORS.TIR;
@@ -109,9 +105,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 drawTextHalo(`${t1Deg.toFixed(2)}°`, cx + 85 * Math.sin(t1Rad / 2), cy - 85 * Math.cos(t1Rad / 2), activeColor);
             }
         } else {
-            const t2Rad = Math.asin(Math.min(1.0, sinT2));
-            const t2Deg = t2Rad * 180 / Math.PI;
-
             const activeColor = isCrit ? COLORS.CRITICAL : COLORS.REFRACTION;
             const activeTailwindClass = isCrit ? 'text-amber-600' : 'text-blue-700';
             const activeBgClass = isCrit ? 'bg-amber-500 text-white shadow-md' : 'bg-blue-600 text-white shadow-md';
@@ -169,10 +162,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const btn = document.getElementById(id);
         const run = () => {
             input.value = (parseFloat(input.value) + delta).toFixed(3);
-            if (input == n1Inp)
-                n1Sel.value = 'custom';
-            if (input == n2Inp)
-                n2Sel.value = 'custom';
+            if (input == n1Inp) n1Sel.value = 'custom';
+            if (input == n2Inp) n2Sel.value = 'custom';
             updatePhysics();
         };
         btn.onmousedown = () => { run(); holdTimer = setInterval(run, 100); };
@@ -190,9 +181,8 @@ document.addEventListener('DOMContentLoaded', () => {
     n2Inp.oninput = () => { n2Sel.value = 'custom'; updatePhysics(); };
     slider.oninput = updatePhysics;
     angleText.onchange = () => { slider.value = angleText.value; updatePhysics(); };
-    critBtn.onclick = () => { if (criticalAngle) { slider.value = criticalAngle; updatePhysics(); } };
+    critBtn.onclick = () => { if (criticalAngleValue) { slider.value = criticalAngleValue; updatePhysics(); } };
     showValCheck.onchange = updatePhysics;
-    document.fonts.ready.then(() => {
-        updatePhysics();
-    });
+    updatePhysics();
+    document.fonts.ready.then(updatePhysics);
 });

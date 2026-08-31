@@ -1,0 +1,8 @@
+node_modules/
+.env
+.env.local
+
+# Vitest / Playwright
+test-results/
+playwright-report/
+.vitest-cache/
